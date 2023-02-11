@@ -1,0 +1,69 @@
+:host{
+  width: 100%;
+}
+
+.voting-wrapper {
+  display: flex;
+  min-height: 300px;
+
+  .section {
+    flex-basis: 33%;
+    padding: 32px 24px;
+    box-sizing: border-box;
+    border: 1px solid grey;
+  }
+
+  .input-group {
+    margin-bottom: 16px;
+  }
+
+  .full-size-btn {
+    padding: 5px 10px;
+    min-width: 80px;
+  }
+
+  .input-options {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    input {
+      width: calc(100% - 60px);
+      margin-right: 10px;
+    }
+
+    button {
+      min-width: 40px;
+    }
+
+    form {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .reset-block {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+
+  .options-selection {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .question-title {
+      margin-top: 0;
+    }
+
+    .vote-btn-wrap {
+      text-align: right;
+    }
+  }
+
+  .chart {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+}
