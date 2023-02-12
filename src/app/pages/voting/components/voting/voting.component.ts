@@ -14,7 +14,7 @@ import {
   styleUrls: ['./voting.component.scss'],
 })
 export class VotingComponent implements OnInit {
-  @ViewChild(ChartComponent, { static: false }) chart: ChartComponent;
+  @ViewChild(ChartComponent, { static: false }) chart: ChartComponent | undefined;
   chartXaxis: ApexXAxis;
   chartSeries: ApexAxisChartSeries;
   chartChart: ApexChart;
@@ -69,9 +69,6 @@ export class VotingComponent implements OnInit {
         text: newValue,
       };
       this.chart?.render();
-      if (!this.questionControl.value.length) {
-        this.clearOptions();
-      }
     });
   }
 
