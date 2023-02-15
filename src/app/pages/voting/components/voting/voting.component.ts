@@ -1,20 +1,28 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  ViewChild,
+} from "@angular/core";
+import { FormArray, FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import {
   ApexChart,
   ChartComponent,
   ApexAxisChartSeries,
   ApexXAxis,
   ApexTitleSubtitle,
-} from 'ng-apexcharts';
+} from "ng-apexcharts";
+import { Subscription } from "rxjs";
 
 @Component({
-  selector: 'voting',
-  templateUrl: './voting.component.html',
-  styleUrls: ['./voting.component.scss'],
+  selector: "voting",
+  templateUrl: "./voting.component.html",
+  styleUrls: ["./voting.component.scss"],
 })
-export class VotingComponent implements OnInit {
-  @ViewChild(ChartComponent, { static: false }) chart: ChartComponent | undefined;
+export class VotingComponent implements OnDestroy {
+  @ViewChild(ChartComponent, { static: false }) chart:
+    | ChartComponent
+    | undefined;
   chartXaxis: ApexXAxis;
   chartSeries: ApexAxisChartSeries;
   chartChart: ApexChart;
@@ -27,49 +35,54 @@ export class VotingComponent implements OnInit {
 
   totalVotes: number = 0;
 
+  private formArrSub: Subscription;
+  private questionSub: Subscription;
+
   constructor(private ref: ChangeDetectorRef, private fb: FormBuilder) {
     this.questionsFormArr = this.fb.array([]);
-    this.newOptionControl = this.fb.control('');
-    this.questionControl = this.fb.control('');
-    this.answerControl = this.fb.control('');
+    this.newOptionControl = this.fb.control("");
+    this.questionControl = this.fb.control("");
+    this.answerControl = this.fb.control("");
 
     this.chartTitle = {
-      text: '',
+      text: "",
     };
     this.chartSeries = [];
     this.chartXaxis = {
       categories: [],
     };
     this.chartChart = {
-      height: '300px',
-      type: 'bar',
+      height: "300px",
+      type: "bar",
     };
-  }
 
-  ngOnInit() {
-    this.questionsFormArr.valueChanges.subscribe((newValue) => {
-      const xData = [];
-      const yData = [];
-      this.totalVotes = 0;
-      for (let i = 0; i < newValue.length; i++) {
-        xData.push(newValue[i].text);
-        yData.push(newValue[i].counter);
-        this.totalVotes += newValue[i].counter;
+    this.formArrSub = this.questionsFormArr.valueChanges.subscribe(
+      (newValue) => {
+        const xData = [];
+        const yData = [];
+        this.totalVotes = 0;
+        for (let i = 0; i < newValue.length; i++) {
+          xData.push(newValue[i].text);
+          yData.push(newValue[i].counter);
+          this.totalVotes += newValue[i].counter;
+        }
+        this.chartXaxis = {
+          categories: xData,
+        };
+        this.chartSeries = [{ data: yData }];
+
+        this.chart?.render();
       }
-      this.chartXaxis = {
-        categories: xData,
-      };
-      this.chartSeries = [{ data: yData }];
+    );
 
-      this.chart?.render();
-    });
-
-    this.questionControl.valueChanges.subscribe((newValue) => {
-      this.chartTitle = {
-        text: newValue,
-      };
-      this.chart?.render();
-    });
+    this.questionSub = this.questionControl.valueChanges.subscribe(
+      (newValue) => {
+        this.chartTitle = {
+          text: newValue,
+        };
+        this.chart?.render();
+      }
+    );
   }
 
   get arrFormGroups() {
@@ -78,7 +91,7 @@ export class VotingComponent implements OnInit {
 
   deleteOption(optionIndex: number): void {
     this.questionsFormArr.removeAt(optionIndex);
-    this.answerControl.reset('');
+    this.answerControl.reset("");
   }
 
   addOption(): void {
@@ -90,18 +103,18 @@ export class VotingComponent implements OnInit {
       this.newFormArrayItem(this.newOptionControl.value, 0)
     );
 
-    this.newOptionControl.reset('');
+    this.newOptionControl.reset("");
   }
 
   clearOptions(): void {
     this.questionsFormArr.clear();
-    this.answerControl.reset('');
-    this.questionControl.reset('');
+    this.answerControl.reset("");
+    this.questionControl.reset("");
   }
 
   voteForOption(): void {
     const answer = this.answerControl.value;
-    const counter = this.questionsFormArr.at(answer)?.get('counter');
+    const counter = this.questionsFormArr.at(answer)?.get("counter");
 
     if (counter) {
       counter?.setValue(counter?.value + 1);
@@ -113,5 +126,10 @@ export class VotingComponent implements OnInit {
       text,
       counter,
     });
+  }
+
+  ngOnDestroy(): void {
+    this.formArrSub?.unsubscribe();
+    this.questionSub?.unsubscribe();
   }
 }
